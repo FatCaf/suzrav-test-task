@@ -77,4 +77,10 @@ export function buildProductsByCategoryQuery(order: string, offset: number, limi
 export const CATEGORY_BY_SLUG = `
 *[_type=="product" && slug.current==$slug][0]{category}
 `
+export const ALL_CATEGORIES = `
+array::unique(
+  *[_type=="product" && defined(category)]
+  | order(category asc).category
+)
+`
 
