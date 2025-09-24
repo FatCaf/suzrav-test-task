@@ -1,103 +1,86 @@
-import Image from "next/image";
+import Link from 'next/link'
+import {fetchProducts} from '@/lib/data/products'
+import {urlFor} from '@/lib/image'
 
-export default function Home() {
+type SP = {
+  q?: string
+  cat?: string | string[]
+  min?: string
+  max?: string
+  available?: '1'|'0'
+  sort?: 'new'|'priceAsc'|'priceDesc'
+  page?: string
+  pageSize?: string
+}
+
+function toArray(x?: string | string[]) {
+  return Array.isArray(x) ? x : x ? [x] : undefined
+}
+
+function qp(obj: Record<string, any>) {
+  const p = new URLSearchParams()
+  Object.entries(obj).forEach(([k,v]) => {
+    if (v === undefined || v === null || v === '') return
+    if (Array.isArray(v)) v.forEach(i => p.append(k, String(i)))
+    else p.set(k, String(v))
+  })
+  return `?${p.toString()}`
+}
+
+export default async function Page({searchParams}: {searchParams: SP}) {
+  const page = Math.max(1, parseInt(searchParams.page || '1', 10))
+  const pageSize = Math.max(1, parseInt(searchParams.pageSize || '12', 10))
+
+  const data = await fetchProducts({
+    q: searchParams.q,
+    categories: toArray(searchParams.cat),
+    minPrice: searchParams.min ? Number(searchParams.min) : undefined,
+    maxPrice: searchParams.max ? Number(searchParams.max) : undefined,
+    available: searchParams.available === '1' ? true : searchParams.available === '0' ? false : undefined,
+    sort: (searchParams.sort as any) || 'new',
+    page,
+    pageSize
+  })
+
+  const baseParams = {
+    q: searchParams.q,
+    cat: toArray(searchParams.cat),
+    min: searchParams.min,
+    max: searchParams.max,
+    available: searchParams.available,
+    sort: searchParams.sort,
+    pageSize
+  }
+
+  const prevHref = page > 1 ? qp({...baseParams, page: page - 1}) : null
+  const nextHref = data.hasMore ? qp({...baseParams, page: page + 1}) : null
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main style={{maxWidth: 1200, margin: '0 auto', padding: 24}}>
+      <h1 style={{fontSize: 24, marginBottom: 12}}>Products</h1>
+      <div style={{opacity: .7, marginBottom: 16}}>total: {data.total} · page {data.page} / {data.pageCount}</div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      <div style={{display:'grid', gap:16, gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))'}}>
+        {data.items.map((p:any)=>(
+          <Link key={p._id} href={`/product/${typeof p.slug === 'string' ? p.slug : p.slug.current}`} style={{border:'1px solid #333', borderRadius:12, padding:12, textDecoration:'none', color:'inherit'}}>
+            {p.image && (
+              <img
+                src={urlFor(p.image).width(600).height(400).fit('crop').url()}
+                alt={p.title}
+                style={{width:'100%', height:160, objectFit:'cover', borderRadius:8}}
+              />
+            )}
+            <div style={{marginTop:8, fontWeight:600}}>{p.title}</div>
+            {p.category && <div style={{opacity:.7, fontSize:12}}>{p.category}</div>}
+            {typeof p.price==='number' && <div style={{marginTop:4}}>{p.price.toFixed(2)} $</div>}
+          </Link>
+        ))}
+      </div>
+
+      <div style={{display:'flex', gap:12, justifyContent:'center', marginTop:24}}>
+        {prevHref ? <Link href={prevHref} style={{border:'1px solid #333', padding:'8px 12px', borderRadius:8, textDecoration:'none', color:'inherit'}}>Prev</Link> : null}
+        {nextHref ? <Link href={nextHref} style={{border:'1px solid #333', padding:'8px 12px', borderRadius:8, textDecoration:'none', color:'inherit'}}>Next</Link> : null}
+      </div>
+    </main>
+  )
 }
