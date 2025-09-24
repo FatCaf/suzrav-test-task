@@ -53,3 +53,28 @@ export function buildProductsQuery(order: string, offset: number, limit: number)
     "total": count(${PRODUCTS_BASE})
   }`
 }
+
+export const PRODUCTS_BY_CATEGORY_BASE = `
+*[_type == "product"
+  && category == $category
+  && (!defined($excludeSlug) || slug.current != $excludeSlug)
+  && (!defined($min) || price >= $min)
+  && (!defined($max) || price <= $max)
+  && (!defined($avail) || availability == $avail)
+]
+`
+
+export function buildProductsByCategoryQuery(order: string, offset: number, limit: number) {
+  return `
+  {
+    "items": (${PRODUCTS_BY_CATEGORY_BASE} | order(${order})){
+      ${PRODUCT_LIST_FIELDS}
+    }[${offset}...${offset + limit}],
+    "total": count(${PRODUCTS_BY_CATEGORY_BASE})
+  }`
+}
+
+export const CATEGORY_BY_SLUG = `
+*[_type=="product" && slug.current==$slug][0]{category}
+`
+
