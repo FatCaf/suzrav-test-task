@@ -30,6 +30,12 @@ export const RELATED_BY_CATEGORY = `
 }
 `
 
+export const PRODUCT_BY_ID = `
+*[_type=="product" && _id==$id][0]{
+  _id, title, description, image, category, price, availability, "slug": slug.current
+}
+`
+
 export function orderExpr(sort: 'new'|'priceAsc'|'priceDesc' = 'new') {
   switch (sort) {
     case 'priceAsc':  return 'price asc'

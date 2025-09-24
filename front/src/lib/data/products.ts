@@ -1,5 +1,5 @@
 import {readClient} from '@/lib/sanity.client'
-import {buildProductsQuery, orderExpr} from '@/lib/groq/queries'
+import {PRODUCT_BY_ID, PRODUCT_BY_SLUG, buildProductsQuery, orderExpr} from '@/lib/groq/queries'
 
 export type Product = {
   _id: string
@@ -38,4 +38,13 @@ export async function fetchProducts(opts: ProductFilters = {}) {
   const {items, total} = await readClient.fetch<{items: Product[]; total: number}>(query, params, { next: { revalidate: 60 } })
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   return { items, total, page, pageSize, pageCount, hasMore: page < pageCount }
+}
+
+
+export async function fetchProductBySlug(slug: string) {
+  return readClient.fetch<Product | null>(PRODUCT_BY_SLUG, {slug}, {next: {revalidate: 60}})
+}
+
+export async function fetchProductById(id: string) {
+  return readClient.fetch<Product | null>(PRODUCT_BY_ID, {id}, {next: {revalidate: 60}})
 }
