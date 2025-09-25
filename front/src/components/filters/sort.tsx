@@ -1,18 +1,24 @@
 'use client'
-import { useQueryFilters } from '@/hooks/filters/use-query-filters'
+import { CustomDropdown } from '@/components/dropdown/dropdown'
 
-export function SortByPrice() {
-    const { setParam, getParam } = useQueryFilters()
+const sortOptions = [
+    { value: 'priceAsc', label: 'Price: Low to High' },
+    { value: 'priceDesc', label: 'Price: High to Low' },
+]
 
+type Props = {
+    setParam: (key: string, value: string | null) => void
+    getParam: (key: string) => string | null
+}
+
+export function SortByPrice({ setParam, getParam }: Props) {
+    const selected = getParam('sort')
     return (
-        <select
-            value={getParam('sort') || ''}
-            onChange={(e) => setParam('sort', e.target.value)}
-            className="p-2 border rounded-md"
-        >
-            <option value="">Sort by</option>
-            <option value="priceAsc">Price: Low to High</option>
-            <option value="priceDesc">Price: High to Low</option>
-        </select>
+        <CustomDropdown
+            options={sortOptions}
+            value={selected}
+            placeholder={'Sort by'}
+            onChange={(value) => setParam('sort', value)}
+        />
     )
 }

@@ -1,11 +1,15 @@
 'use client'
 
-import { useQueryFilters } from '@/hooks/filters/use-query-filters'
-import { useEffect, useState } from 'react'
 import { fetchAllCategories } from '@/lib/data/products'
+import { CustomDropdown } from '@/components/dropdown/dropdown'
+import { useEffect, useState } from 'react'
 
-export function CategoryFilter() {
-    const { setParam, getParam } = useQueryFilters()
+type Props = {
+    setParam: (key: string, value: string | null) => void
+    getParam: (key: string) => string | null
+}
+
+export function CategoryFilter({ setParam, getParam }: Props) {
     const [options, setOptions] = useState<string[]>([])
     const selected = getParam('category')
     useEffect(() => {
@@ -15,17 +19,11 @@ export function CategoryFilter() {
         })()
     }, [])
     return (
-        <select
-            value={selected || ''}
-            onChange={(e) => setParam('category', e.target.value)}
-            className="p-2 border rounded-md"
-        >
-            <option value="">All Categories</option>
-            {options.map((cat) => (
-                <option key={cat} value={cat}>
-                    {cat}
-                </option>
-            ))}
-        </select>
+        <CustomDropdown
+            options={options.map((o) => ({ value: o, label: o }))}
+            value={selected}
+            onChange={(value) => setParam('category', value)}
+            placeholder="All categories"
+        />
     )
 }

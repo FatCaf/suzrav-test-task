@@ -18,5 +18,7 @@ export function useQueryFilters() {
 
     const getParam = (key: string) => searchParams.get(key)
 
-    return { setParam, getParam, all: searchParams }
+    const clearAll = () => router.push('?')
+
+    return { setParam, getParam, all: searchParams, clearAll }
 }

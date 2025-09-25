@@ -1,9 +1,11 @@
 'use client'
-import { useQueryFilters } from '@/hooks/filters/use-query-filters'
 
-export function SearchBar() {
-    const { setParam, getParam } = useQueryFilters()
+type Props = {
+    setParam: (key: string, value: string | null) => void
+    getParam: (key: string) => string | null
+}
 
+export function SearchBar({ setParam, getParam }: Props) {
     return (
         <input
             type="text"

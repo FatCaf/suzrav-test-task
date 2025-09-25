@@ -1,11 +1,11 @@
 import { readClient } from '@/lib/sanity.client'
 import {
     ALL_CATEGORIES,
-    CATEGORY_BY_SLUG,
     PRODUCT_BY_SLUG,
     buildProductsByCategoryQuery,
     buildProductsQuery,
     orderExpr,
+    CATEGORY_BY_SLUG,
 } from '@/lib/groq/queries'
 
 export type Product = {
@@ -31,43 +31,51 @@ export type ProductFilters = {
     pageSize?: number
 }
 
-
 export async function fetchProducts(opts: ProductFilters = {}) {
-  const {
-    title,
-    category,
-    minPrice,
-    maxPrice,
-    available,
-    sort = 'new',
-    page = 1,
-    pageSize = 12,
-  } = opts
+    const {
+        title,
+        category,
+        minPrice,
+        maxPrice,
+        available,
+        sort = 'new',
+        page = 1,
+        pageSize = 12,
+    } = opts
 
-  const offset = (page - 1) * pageSize
-  const query = buildProductsQuery(orderExpr(sort), offset, pageSize)
+    const offset = (page - 1) * pageSize
+    const query = buildProductsQuery(orderExpr(sort), offset, pageSize)
 
-  const cats =
-    Array.isArray(category) ? (category.length ? category : null)
-    : category ? [category]
-    : null
+    const cats = Array.isArray(category)
+        ? category.length
+            ? category
+            : null
+        : category
+          ? [category]
+          : null
 
-  const params = {
-    q: title ? `*${title}*` : null,
-    cats,
-    min: typeof minPrice === 'number' ? minPrice : null,
-    max: typeof maxPrice === 'number' ? maxPrice : null,
-    avail: typeof available === 'boolean' ? available : null,
-  }
+    const params = {
+        q: title ? `*${title}*` : null,
+        cats,
+        min: typeof minPrice === 'number' ? minPrice : null,
+        max: typeof maxPrice === 'number' ? maxPrice : null,
+        avail: typeof available === 'boolean' ? available : null,
+    }
 
-  const { items, total } = await readClient.fetch<{items: Product[]; total: number}>(
-    query,
-    params,
-    { next: { revalidate: 60 } }
-  )
+    const { items, total } = await readClient.fetch<{
+        items: Product[]
+        total: number
+    }>(query, params, { next: { revalidate: 60 } })
 
-  const pageCount = Math.max(1, Math.ceil(total / pageSize))
-  return { items, total, page, pageSize, pageCount, hasMore: page < pageCount }
+    const pageCount = Math.max(1, Math.ceil(total / pageSize))
+    return {
+        items,
+        total,
+        page,
+        pageSize,
+        pageCount,
+        hasMore: page < pageCount,
+    }
 }
 
 export async function fetchProductBySlug(slug: string) {

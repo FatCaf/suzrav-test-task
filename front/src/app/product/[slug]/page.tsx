@@ -38,6 +38,9 @@ export default async function Page({ params }: Props) {
                         <p className="text-gray-700 mb-6 leading-relaxed">
                             {product.description}
                         </p>
+                        <p className="text-gray-700 mb-6 leading-relaxed">
+                            {product.availability ? 'In Stock' : 'Out of Stock'}
+                        </p>
 
                         <button
                             disabled={!product.availability}
