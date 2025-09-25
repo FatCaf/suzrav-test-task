@@ -58,7 +58,7 @@
 5. **(Optional) Seed content**
 
    * In Studio: **Product → Create → Publish**.
-6. **(Optional, if fetching from browser) Add CORS origin**
+6. **Add CORS origin**
 
    * Studio → **Manage project** → **Settings → API → CORS origins** → add `http://localhost:3000`.
 
