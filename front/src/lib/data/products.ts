@@ -34,7 +34,7 @@ export type ProductFilters = {
 
 export async function fetchProducts(opts: ProductFilters = {}) {
   const {
-    q,
+    title,
     category,
     minPrice,
     maxPrice,
@@ -53,7 +53,7 @@ export async function fetchProducts(opts: ProductFilters = {}) {
     : null
 
   const params = {
-    q: q ? `*${q}*` : null,
+    q: title ? `*${title}*` : null,
     cats,
     min: typeof minPrice === 'number' ? minPrice : null,
     max: typeof maxPrice === 'number' ? maxPrice : null,
