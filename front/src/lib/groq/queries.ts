@@ -10,13 +10,14 @@ export const PRODUCT_LIST_FIELDS = `
 
 export const PRODUCTS_BASE = `
 *[_type == "product"
-  && (!defined($q) || title match $q)
+  && (!defined($q) || title match $q || description match $q)
   && (!defined($cats) || category in $cats)
   && (!defined($min) || price >= $min)
   && (!defined($max) || price <= $max)
   && (!defined($avail) || availability == $avail)
 ]
 `
+
 
 export const PRODUCT_BY_SLUG = `
 *[_type=="product" && slug.current==$slug][0]{
